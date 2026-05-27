@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>AI 试衣小程序</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --surface: rgba(255, 255, 255, 0.92);
+      --surface-strong: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: rgba(17, 24, 39, 0.08);
+      --primary: #111827;
+      --primary-soft: #e5e7eb;
+      --accent: #ff6b6b;
+      --accent-2: #4f8cff;
+      --shadow: 0 20px 50px rgba(15, 23, 42, 0.10);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), transparent 30%),
+        radial-gradient(circle at right top, rgba(220, 234, 255, 0.65), transparent 26%),
+        linear-gradient(180deg, #f8f9fb 0%, #eef1f5 100%);
+      color: var(--text);
+      font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px 104px;
+    }
+
+    .app {
+      width: min(375px, 100%);
+      min-height: calc(100vh - 124px);
+      position: relative;
+      border-radius: 32px;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.24s ease;
+      padding-bottom: 8px;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      padding: 18px 18px 10px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.7);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--text);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .section-block {
+      margin: 12px 16px 0;
+      padding: 16px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .filter-btn {
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 10px 0;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .wardrobe-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .wardrobe-item {
+      border: 2px solid transparent;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 10px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      text-align: left;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wardrobe-item:active,
+    .action-btn:active,
+    .tab-btn:active,
+    .small-btn:active,
+    .icon-btn:active,
+    .modal-item:active {
+      transform: scale(0.98);
+    }
+
+    .wardrobe-item.selected {
+      border-color: var(--accent);
+      box-shadow: 0 14px 28px rgba(255, 107, 107, 0.18);
+    }
+
+    .item-actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 0.18s ease;
+      z-index: 2;
+    }
+
+    .wardrobe-item.selected .item-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .action-chip {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 11px;
+      background: rgba(17, 24, 39, 0.88);
+      color: #fff;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.18);
+    }
+
+    .action-chip.danger {
+      background: rgba(239, 68, 68, 0.92);
+    }
+
+    .item-thumb {
+      height: 112px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.96);
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .item-thumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.30), transparent 25%),
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.08));
+      pointer-events: none;
+    }
+
+    .item-thumb i {
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    }
+
+    .item-name {
+      margin: 10px 0 2px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .item-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .look-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .look-title input {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font: inherit;
+      font-weight: 800;
+      color: inherit;
+      padding: 0;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .compare-card {
+      border-radius: 24px;
+      min-height: 192px;
+      overflow: hidden;
+      position: relative;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #fff;
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.16);
+    }
+
+    .compare-card .badge {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(6px);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .compare-card .compare-icon {
+      font-size: 52px;
+      opacity: 0.96;
+      margin-top: 18px;
+      text-align: center;
+    }
+
+    .compare-card .compare-caption {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .compare-card .compare-sub {
+      font-size: 12px;
+      opacity: 0.88;
+      line-height: 1.5;
+    }
+
+    .compare-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.28), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.16), transparent 28%);
+    }
+
+    .compare-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .controls-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .action-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 13px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn.primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(17, 24, 39, 0.22);
+    }
+
+    .action-btn.secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .action-btn.soft {
+      background: #eef2ff;
+      color: #2d3c7f;
+    }
+
+    .selected-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .selected-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+    }
+
+    .mini-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      flex: 0 0 52px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 20px;
+      box-shadow: inset 0 -10px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .selected-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .selected-name {
+      margin: 0 0 3px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .selected-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .small-btn {
+      border: none;
+      background: #f3f4f6;
+      color: var(--text);
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 2px 0 10px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #dce7ff, #fff1dd 60%, #ffd5d5);
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+      border: 3px solid rgba(255, 255, 255, 0.88);
+    }
+
+    .profile-name {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .profile-bio {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .profile-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+    }
+
+    .setting-row .left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .setting-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: #eef2ff;
+      color: #334155;
+    }
+
+    .setting-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .setting-subtitle {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .count-box {
+      margin-top: 10px;
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #111827, #334155);
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .count-box::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -60px;
+      top: -70px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .count-label {
+      margin: 0;
+      opacity: 0.82;
+      font-size: 12px;
+    }
+
+    .count-number {
+      margin: 8px 0 0;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      width: min(375px, calc(100% - 24px));
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(17, 24, 39, 0.07);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.16);
+      backdrop-filter: blur(16px);
+      border-radius: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 8px;
+      z-index: 30;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      border-radius: 16px;
+      padding: 10px 8px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: grid;
+      place-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tab-btn i {
+      font-size: 18px;
+    }
+
+    .tab-btn.active {
+      background: #111827;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(17, 24, 39, 0.18);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 92px;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(17, 24, 39, 0.94);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 40;
+      max-width: calc(100% - 28px);
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+      padding: 18px 12px 88px;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .modal {
+      width: min(375px, 100%);
+      background: #fff;
+      border-radius: 26px;
+      padding: 18px;
+      box-shadow: 0 28px 70px rgba(2, 6, 23, 0.28);
+      max-height: 72vh;
+      overflow: auto;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .close-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      border: none;
+      background: #f3f4f6;
+      color: #111827;
+      cursor: pointer;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .modal-item {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 10px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .modal-item .thumb-small {
+      height: 90px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .modal-item h4 {
+      margin: 0 0 2px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .modal-item p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .dialog-line {
+      border-top: 1px solid rgba(17, 24, 39, 0.08);
+      margin: 14px 0;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .empty {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px dashed rgba(17, 24, 39, 0.14);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .upload-preview {
+      border: 1px dashed rgba(17, 24, 39, 0.16);
+      border-radius: 18px;
+      min-height: 146px;
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+      padding: 14px;
+      color: var(--muted);
+    }
+
+    .upload-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .upload-preview .placeholder {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      font-size: 13px;
+    }
+
+    .upload-preview .placeholder i {
+      font-size: 28px;
+      color: #334155;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      border: 1px solid rgba(17, 24, 39, 0.10);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--text);
+      padding: 12px 14px;
+      outline: none;
+      font: inherit;
+    }
+
+    .field-textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .category-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .category-chip {
+      border: 1px solid rgba(17, 24, 39, 0.10);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.16s ease;
+    }
+
+    .category-chip.active {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+
+    .modal-footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .detail-figure {
+      min-height: 240px;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      margin-bottom: 14px;
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+    }
+
+    .detail-figure img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .detail-figure .fallback {
+      position: relative;
+      z-index: 1;
+      font-size: 52px;
+      text-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    .detail-meta {
+      display: grid;
+      gap: 6px;
+    }
+
+    .detail-meta h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .detail-meta p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .preview-tip {
+      position: relative;
+      z-index: 1;
+      max-width: 190px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 420px) {
+      .filters {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .controls-row {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="screen active" id="screen-wardrobe" data-screen="wardrobe">
+      <div class="header">
+        <div class="header-top">
+          <div>
+            <h1 class="page-title">我的衣橱</h1>
+            <div class="subtle">移动端优先 · 简洁现代的 AI 试衣前端框架</div>
+          </div>
+          <div class="header-actions">
+            <div class="pill"><i class="fa-solid fa-wand-magic-sparkles"></i> HeyOOTD 风格</div>
+            <button class="icon-btn" id="openAddClothingBtn" type="button" title="添加衣服"><i class="fa-solid fa-plus"></i></button>
+          </div>
+        </div>
+
+        <div class="card section-block" style="margin: 0; padding-bottom: 14px;">
+          <div class="section-title">分类筛选</div>
+          <div class="filters" id="filterBar"></div>
+        </div>
+      </div>
+
+      <div class="card section-block">
+        <div class="section-title">衣橱单品</div>
+        <div class="subtle">点击单品进行选中，高亮后可加入试衣间</div>
+        <div class="wardrobe-grid" id="wardrobeGrid"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-fitting" data-screen="fitting">
+      <div class="header">
+        <div class="title-row" style="align-items: flex-start;">
+          <div>
+            <h1 class="page-title">试衣间</h1>
+            <div class="subtle">组合对比 · 单品列表 · 一键生成</div>
+          </div>
+          <span class="hero-chip"><i class="fa-solid fa-clapperboard"></i> AI Try-On</span>
+        </div>
+
+        <div class="card section-block" style="margin: 0;">
+          <div class="title-row" style="margin-bottom: 0;">
+            <div class="look-title"><input id="outfitNameInput" maxlength="18" aria-label="穿搭名称" /></div>
+            <button class="small-btn" id="renameLookBtn" type="button" title="修改名称"><i class="fa-regular fa-pen-to-square"></i></button>
+          </div>
+          <div class="subtle" style="margin-top: 6px;">支持直接编辑名称，模拟你的今日穿搭灵感。</div>
+
+          <div class="compare-grid">
+            <div class="compare-card" id="leftCompareCard">
+              <div class="compare-inner">
+                <div class="badge"><i class="fa-solid fa-shirt"></i> 当前穿搭</div>
+                <div class="compare-icon"><i class="fa-solid fa-person"></i></div>
+                <div>
+                  <div class="compare-caption">当前穿搭效果图</div>
+                  <div class="compare-sub">这里展示模拟的人像试衣占位图。</div>
+                </div>
+              </div>
+            </div>
+            <div class="compare-card" id="rightCompareCard">
+              <div class="compare-inner">
+                <div class="badge"><i class="fa-solid fa-lightbulb"></i> 搭配建议</div>
+                <div class="compare-icon"><i class="fa-solid fa-vest"></i></div>
+                <div>
+                  <div class="compare-caption" id="suggestionTitle">另一种搭配建议</div>
+                  <div class="compare-sub" id="suggestionDesc">点击“重新生成”获得新的配色与穿搭灵感。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls-row">
+            <button class="action-btn secondary" id="addItemBtn" type="button"><i class="fa-solid fa-plus"></i> 添加单品</button>
+            <button class="action-btn soft" id="regenBtn" type="button"><i class="fa-solid fa-arrows-rotate"></i> 重新生成</button>
+            <button class="action-btn primary" id="saveLookBtn" type="button"><i class="fa-solid fa-bookmark"></i> 保存穿搭</button>
+            <button class="action-btn secondary" id="clearSelectedBtn" type="button"><i class="fa-solid fa-broom"></i> 清空列表</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card section-block">
+        <div class="section-title">试穿单品列表</div>
+        <div class="hint">默认展示选中的 mock 单品，支持移除和继续添加。</div>
+        <div class="selected-list" id="selectedList"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-profile" data-screen="profile">
+      <div class="header">
+        <div class="title-row">
+          <div>
+            <h1 class="page-title">我的</h1>
+            <div class="subtle">个人资料 · 身形信息 · 灵感收藏</div>
+          </div>
+          <div class="pill" id="profilePill" role="button" tabindex="0"><i class="fa-solid fa-user-astronaut"></i> Profile</div>
+        </div>
+      </div>
+
+      <div class="card section-block">
+        <div class="profile-top">
+          <div class="avatar"><i class="fa-solid fa-user"></i></div>
+          <div style="flex: 1; min-width: 0;">
+            <p class="profile-name"><input id="nicknameInput" maxlength="16" aria-label="昵称" style="width: 100%; border: none; background: transparent; font: inherit; font-weight: 800; outline: none; color: inherit; padding: 0;" /></p>
+            <p class="profile-bio"><textarea id="bioInput" rows="2" maxlength="80" aria-label="个人简介" style="width: 100%; resize: none; border: none; background: transparent; font: inherit; color: inherit; outline: none; padding: 0; line-height: 1.6;"></textarea></p>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <div class="setting-row">
+            <div class="left">
+              <div class="setting-icon"><i class="fa-solid fa-ruler-combined"></i></div>
+              <div>
+                <p class="setting-title">身形信息</p>
+                <p class="setting-subtitle" id="bodyInfoSummary">165cm · 50kg · 梨形身材</p>
+              </div>
+            </div>
+            <button class="small-btn" id="bodyInfoBtn" type="button"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+
+          <div class="setting-row">
+            <div class="left">
+              <div class="setting-icon"><i class="fa-solid fa-camera"></i></div>
+              <div>
+                <p class="setting-title">上传照片</p>
+                <p class="setting-subtitle">人脸融合入口 mock</p>
+              </div>
+            </div>
+            <button class="action-btn secondary" id="uploadPhotoBtn" type="button" style="padding: 10px 12px; border-radius: 14px;">点击上传</button>
+          </div>
+
+          <div class="count-box">
+            <p class="count-label">已保存的灵感穿搭</p>
+            <p class="count-number">6</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="bottom-nav" aria-label="底部导航">
+    <button class="tab-btn active" data-tab="wardrobe" type="button"><i class="fa-solid fa-shirt"></i><span>衣橱</span></button>
+    <button class="tab-btn" data-tab="fitting" type="button"><i class="fa-solid fa-shirt"></i><span>试衣</span></button>
+    <button class="tab-btn" data-tab="profile" type="button"><i class="fa-solid fa-user"></i><span>我的</span></button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-mask" id="addModalMask" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+      <div class="modal-head">
+        <h2 class="modal-title" id="addModalTitle">选择要添加的单品</h2>
+        <button class="close-btn" id="closeAddModalBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="hint">点击任意衣橱单品，将它加入试穿列表。重复添加会自动忽略。</p>
+      <div class="dialog-line"></div>
+      <div class="modal-grid" id="modalGrid"></div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="wardrobeAddMask" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wardrobeAddTitle">
+      <div class="modal-head">
+        <h2 class="modal-title" id="wardrobeAddTitle">添加衣服</h2>
+        <button class="close-btn" id="closeWardrobeAddBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="hint">上传衣服图片，选择品类并填写名称，保存后会加入衣橱 mock 数据。</p>
+      <div class="dialog-line"></div>
+
+      <div class="form-grid">
+        <div>
+          <label class="field-label">衣服图片</label>
+          <div class="upload-preview" id="clothingPreviewBox">
+            <div class="placeholder" id="clothingPreviewPlaceholder">
+              <i class="fa-regular fa-image"></i>
+              <div>
+                <strong style="color: #111827;">点击上传图片</strong>
+                <div>支持 JPG / PNG / WebP</div>
+              </div>
+            </div>
+            <img id="clothingPreviewImg" alt="衣服预览" style="display:none;" />
+          </div>
+          <input id="clothingImageInput" type="file" accept="image/*" hidden />
+          <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="action-btn secondary" id="pickImageBtn" type="button" style="padding: 10px 12px; border-radius: 14px;">选择图片</button>
+            <button class="action-btn secondary" id="clearImageBtn" type="button" style="padding: 10px 12px; border-radius: 14px;">清除图片</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label" for="clothingNameInput">衣服名称</label>
+          <input class="field-input" id="clothingNameInput" type="text" maxlength="20" placeholder="例如：白色衬衫" />
+        </div>
+
+        <div>
+          <label class="field-label">衣服品类</label>
+          <div class="category-picker" id="clothingCategoryPicker"></div>
+        </div>
+
+        <div>
+          <label class="field-label" for="clothingNoteInput">备注</label>
+          <textarea class="field-textarea" id="clothingNoteInput" maxlength="80" placeholder="可填写材质、风格或搭配建议"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="action-btn secondary" id="cancelWardrobeAddBtn" type="button">取消</button>
+        <button class="action-btn primary" id="saveWardrobeAddBtn" type="button">保存到衣橱</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="bodyInfoMask" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bodyInfoTitle">
+      <div class="modal-head">
+        <h2 class="modal-title" id="bodyInfoTitle">身形信息</h2>
+        <button class="close-btn" id="closeBodyInfoBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="hint">当前模拟数据可在前端展示并临时编辑，刷新后恢复默认值。</p>
+      <div class="dialog-line"></div>
+      <div class="selected-list" style="gap: 12px;">
+        <div class="setting-row" style="border-radius: 16px;">
+          <div class="left"><div class="setting-icon"><i class="fa-solid fa-up-down"></i></div><div><p class="setting-title">身高</p><p class="setting-subtitle" id="bodyHeightText">165 cm</p></div></div>
+        </div>
+        <div class="setting-row" style="border-radius: 16px;">
+          <div class="left"><div class="setting-icon"><i class="fa-solid fa-weight-scale"></i></div><div><p class="setting-title">体重</p><p class="setting-subtitle" id="bodyWeightText">50 kg</p></div></div>
+        </div>
+        <div class="setting-row" style="border-radius: 16px;">
+          <div class="left"><div class="setting-icon"><i class="fa-solid fa-people-group"></i></div><div><p class="setting-title">身材类型</p><p class="setting-subtitle" id="bodyShapeText">梨形身材</p></div></div>
+        </div>
+
+        <form id="bodyInfoEditForm" style="display:none; width:100%">
+          <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <input id="bodyHeightInput" type="number" min="1" placeholder="身高(cm)" style="flex:1; padding:10px; border-radius:8px; border:1px solid #e5e7eb;">
+            <input id="bodyWeightInput" type="number" min="1" placeholder="体重(kg)" style="flex:1; padding:10px; border-radius:8px; border:1px solid #e5e7eb;">
+          </div>
+          <div style="margin-bottom:10px;">
+            <select id="bodyShapeInput" style="width:100%; padding:10px; border-radius:8px; border:1px solid #e5e7eb;">
+              <option>梨形身材</option>
+              <option>苹果型</option>
+              <option>沙漏型</option>
+              <option>矩形</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="dialog-line"></div>
+      <div class="toolbar">
+        <button class="action-btn primary" id="editBodyInfoBtn" type="button" style="flex: 1;">编辑信息</button>
+        <button class="action-btn secondary" id="bodyInfoOkBtn" type="button" style="flex: 1;">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="profileEditMask" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
+      <div class="modal-head">
+        <h2 class="modal-title" id="profileEditTitle">编辑资料</h2>
+        <button class="close-btn" id="closeProfileEditBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="hint">修改昵称或上传头像，保存后会同步到本地存储。</p>
+      <div class="dialog-line"></div>
+      <div style="display:grid; gap:12px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="width:72px; height:72px; border-radius: 12px; overflow:hidden; background:linear-gradient(160deg,#fff,#f3f4f6); display:flex; align-items:center; justify-content:center;" id="profileAvatarPreview"><i class="fa-solid fa-user" style="font-size:24px;color:#94a3b8"></i></div>
+          <div style="flex:1;">
+            <input id="profileNicknameInput" type="text" maxlength="16" placeholder="昵称" style="width:100%; padding:8px; border-radius:8px; border:1px solid #e5e7eb;">
+            <textarea id="profileBioInput" rows="2" placeholder="个人简介" style="width:100%; margin-top:8px; padding:8px; border-radius:8px; border:1px solid #e5e7eb;"></textarea>
+          </div>
+        </div>
+        <input id="profileAvatarInput" type="file" accept="image/*" hidden />
+        <div style="display:flex; gap:8px;"><button class="action-btn secondary" id="profilePickAvatarBtn" type="button">选择头像</button><button class="action-btn secondary" id="profileClearAvatarBtn" type="button">清除头像</button></div>
+      </div>
+      <div class="dialog-line"></div>
+      <div class="toolbar">
+        <button class="action-btn secondary" id="cancelProfileEditBtn" type="button" style="flex:1">取消</button>
+        <button class="action-btn primary" id="saveProfileBtn" type="button" style="flex:1">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="itemDetailMask" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="itemDetailTitle">
+      <div class="modal-head">
+        <h2 class="modal-title" id="itemDetailTitle">单品详情</h2>
+        <button class="close-btn" id="closeItemDetailBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="detail-figure" id="detailFigure"></div>
+      <div class="detail-meta">
+        <h3 id="detailName"></h3>
+        <p id="detailCategory"></p>
+        <p id="detailNote"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="action-btn secondary" id="deleteFromDetailBtn" type="button"><i class="fa-solid fa-trash"></i> 删除</button>
+        <button class="action-btn primary" id="editFromDetailBtn" type="button"><i class="fa-solid fa-pen-to-square"></i> 编辑</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ai-tryon-state-v1';
+
+    const defaultWardrobeItems = [
+      { id: 1, category: '上装', name: '白色衬衫', thumb: '#d8e8ff', icon: 'fa-shirt', note: '通勤百搭' },
+      { id: 2, category: '下装', name: '浅蓝牛仔裤', thumb: '#8bb7ff', icon: 'fa-vest', note: '日常出街' },
+      { id: 3, category: '鞋子', name: '奶白球鞋', thumb: '#f1ddd2', icon: 'fa-shoe-prints', note: '舒适耐走' },
+      { id: 4, category: '包包', name: '棕色托特包', thumb: '#d49a6a', icon: 'fa-bag-shopping', note: '容量更大' },
+      { id: 5, category: '配饰', name: '银色耳钉', thumb: '#cfd4dc', icon: 'fa-gem', note: '精致点缀' },
+      { id: 6, category: '上装', name: '黑色短外套', thumb: '#2d3748', icon: 'fa-person-rays', note: '偏酷感' },
+      { id: 7, category: '下装', name: '米色半身裙', thumb: '#e9d7b8', icon: 'fa-shirt', note: '温柔氛围' },
+      { id: 8, category: '配饰', name: '丝巾', thumb: '#ffb2c5', icon: 'fa-wind', note: '轻盈层次' }
+    ];
+
+    let wardrobeItems = [
+      ...defaultWardrobeItems
+    ];
+
+    const categories = ['全部', '上装', '下装', '鞋子', '包包', '配饰'];
+    const selectedItems = [wardrobeItems[0], wardrobeItems[1], wardrobeItems[2]];
+    const wardrobeCategories = ['上装', '下装', '鞋子', '包包', '配饰'];
+    let currentFilter = '全部';
+    let selectedWardrobeId = null;
+    let generationSeed = 0;
+    let outfitName = '今日穿搭';
+    let profileState = {
+      nickname: 'Luna',
+      bio: '记录每天的穿搭灵感，把衣橱变成个人风格实验室。'
+    };
+    // optional avatar (data URL)
+    profileState.avatar = '';
+    let bodyInfo = {
+      height: 165,
+      weight: 50,
+      shape: '梨形身材'
+    };
+    let wardrobeDraft = {
+      image: '',
+      category: '上装',
+      name: '',
+      note: ''
+    };
+    let wardrobeEditTargetId = null;
+    let wardrobeModalMode = 'create';
+
+    const screenMap = {
+      wardrobe: document.getElementById('screen-wardrobe'),
+      fitting: document.getElementById('screen-fitting'),
+      profile: document.getElementById('screen-profile')
+    };
+
+    const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+    const filterBar = document.getElementById('filterBar');
+    const wardrobeGrid = document.getElementById('wardrobeGrid');
+    const selectedList = document.getElementById('selectedList');
+    const modalGrid = document.getElementById('modalGrid');
+    const toast = document.getElementById('toast');
+    const addModalMask = document.getElementById('addModalMask');
+    const wardrobeAddMask = document.getElementById('wardrobeAddMask');
+    const bodyInfoMask = document.getElementById('bodyInfoMask');
+    const itemDetailMask = document.getElementById('itemDetailMask');
+    const outfitNameInput = document.getElementById('outfitNameInput');
+    const leftCompareCard = document.getElementById('leftCompareCard');
+    const rightCompareCard = document.getElementById('rightCompareCard');
+    const suggestionTitle = document.getElementById('suggestionTitle');
+    const suggestionDesc = document.getElementById('suggestionDesc');
+    const nicknameInput = document.getElementById('nicknameInput');
+    const bioInput = document.getElementById('bioInput');
+    const bodyInfoSummary = document.getElementById('bodyInfoSummary');
+    const openAddClothingBtn = document.getElementById('openAddClothingBtn');
+    const clothingImageInput = document.getElementById('clothingImageInput');
+    const clothingPreviewImg = document.getElementById('clothingPreviewImg');
+    const clothingPreviewPlaceholder = document.getElementById('clothingPreviewPlaceholder');
+    const clothingNameInput = document.getElementById('clothingNameInput');
+    const clothingNoteInput = document.getElementById('clothingNoteInput');
+    const clothingCategoryPicker = document.getElementById('clothingCategoryPicker');
+    const clothingPreviewBox = document.getElementById('clothingPreviewBox');
+    const pickImageBtn = document.getElementById('pickImageBtn');
+    const clearImageBtn = document.getElementById('clearImageBtn');
+    const detailFigure = document.getElementById('detailFigure');
+    const detailName = document.getElementById('detailName');
+    const detailCategory = document.getElementById('detailCategory');
+    const detailNote = document.getElementById('detailNote');
+    const deleteFromDetailBtn = document.getElementById('deleteFromDetailBtn');
+    const editFromDetailBtn = document.getElementById('editFromDetailBtn');
+    let activeWardrobeItem = null;
+    // profile edit modal elements
+    const profilePill = document.getElementById('profilePill');
+    const profileEditMask = document.getElementById('profileEditMask');
+    const closeProfileEditBtn = document.getElementById('closeProfileEditBtn');
+    const profileAvatarPreview = document.getElementById('profileAvatarPreview');
+    const profileAvatarInput = document.getElementById('profileAvatarInput');
+    const profilePickAvatarBtn = document.getElementById('profilePickAvatarBtn');
+    const profileClearAvatarBtn = document.getElementById('profileClearAvatarBtn');
+    const profileNicknameInput = document.getElementById('profileNicknameInput');
+    const profileBioInput = document.getElementById('profileBioInput');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const cancelProfileEditBtn = document.getElementById('cancelProfileEditBtn');
+    // body info inline edit fields
+    const bodyHeightText = document.getElementById('bodyHeightText');
+    const bodyWeightText = document.getElementById('bodyWeightText');
+    const bodyShapeText = document.getElementById('bodyShapeText');
+    const bodyInfoEditForm = document.getElementById('bodyInfoEditForm');
+    const bodyHeightInput = document.getElementById('bodyHeightInput');
+    const bodyWeightInput = document.getElementById('bodyWeightInput');
+    const bodyShapeInput = document.getElementById('bodyShapeInput');
+
+    function cloneItem(item) {
+      return item ? { ...item } : item;
+    }
+
+    function cloneWardrobeList(items) {
+      return Array.isArray(items) ? items.map((item) => cloneItem(item)) : [];
+    }
+
+    function getDefaultSelectedIds(items) {
+      return items.slice(0, 3).map((item) => item.id);
+    }
+
+    function saveAppState() {
+      try {
+        const payload = {
+          wardrobeItems: cloneWardrobeList(wardrobeItems),
+          selectedItemIds: selectedItems.map((item) => item.id),
+          outfitName,
+          profileState: { ...profileState },
+          bodyInfo: { ...bodyInfo }
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (error) {
+        console.warn('保存本地数据失败，当前仅保留临时状态', error);
+      }
+    }
+
+    function loadAppState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          wardrobeItems = cloneWardrobeList(defaultWardrobeItems);
+          selectedItems.splice(0, selectedItems.length, ...wardrobeItems.slice(0, 3));
+          return;
+        }
+
+        const parsed = JSON.parse(raw);
+        const restoredWardrobe = Array.isArray(parsed.wardrobeItems) && parsed.wardrobeItems.length
+          ? parsed.wardrobeItems
+          : defaultWardrobeItems;
+        wardrobeItems = cloneWardrobeList(restoredWardrobe);
+
+        const selectedIds = Array.isArray(parsed.selectedItemIds) && parsed.selectedItemIds.length
+          ? parsed.selectedItemIds
+          : getDefaultSelectedIds(wardrobeItems);
+        selectedItems.splice(
+          0,
+          selectedItems.length,
+          ...selectedIds
+            .map((id) => wardrobeItems.find((item) => item.id === id))
+            .filter(Boolean)
+        );
+
+        outfitName = typeof parsed.outfitName === 'string' && parsed.outfitName.trim()
+          ? parsed.outfitName.trim()
+          : outfitName;
+        profileState = {
+          nickname: parsed.profileState?.nickname?.trim() || profileState.nickname,
+          bio: parsed.profileState?.bio?.trim() || profileState.bio
+        };
+        bodyInfo = {
+          height: Number(parsed.bodyInfo?.height) || bodyInfo.height,
+          weight: Number(parsed.bodyInfo?.weight) || bodyInfo.weight,
+          shape: parsed.bodyInfo?.shape?.trim() || bodyInfo.shape
+        };
+      } catch (error) {
+        console.warn('读取本地数据失败，已恢复默认值', error);
+        wardrobeItems = cloneWardrobeList(defaultWardrobeItems);
+        selectedItems.splice(0, selectedItems.length, ...wardrobeItems.slice(0, 3));
+      }
+    }
+
+    const suggestionVariants = [
+      {
+        title: '轻盈通勤风',
+        desc: '适合日常出街和轻办公场景，保持干净层次感。',
+        gradient: 'linear-gradient(160deg, #f97316, #fb7185 52%, #8b5cf6)'
+      },
+      {
+        title: '冷感极简风',
+        desc: '更强调线条与留白，适合简洁高级的视觉效果。',
+        gradient: 'linear-gradient(160deg, #0f172a, #1d4ed8 54%, #22c55e)'
+      },
+      {
+        title: '奶油松弛感',
+        desc: '柔和色系和低饱和配色，突出舒适度与亲和感。',
+        gradient: 'linear-gradient(160deg, #f8c8a0, #fef3c7 55%, #fca5a5)'
+      },
+      {
+        title: '街头运动感',
+        desc: '更有动感和年轻态，适合偏活力的试衣参考。',
+        gradient: 'linear-gradient(160deg, #111827, #475569 45%, #38bdf8)'
+      }
+    ];
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function setTab(tab) {
+      Object.entries(screenMap).forEach(([name, element]) => {
+        element.classList.toggle('active', name === tab);
+      });
+      tabButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.tab === tab);
+      });
+      console.log(`切换到 ${tab} 页面`);
+      showToast(tab === 'wardrobe' ? '已进入衣橱' : tab === 'fitting' ? '已进入试衣间' : '已进入我的');
+    }
+
+    function iconForCategory(category) {
+      const mapping = {
+        上装: 'fa-shirt',
+        下装: 'fa-vest',
+        鞋子: 'fa-shoe-prints',
+        包包: 'fa-bag-shopping',
+        配饰: 'fa-gem'
+      };
+      return mapping[category] || 'fa-shirt';
+    }
+
+    function renderThumb(item, size = 'grid') {
+      const iconSize = size === 'large' ? '' : '';
+      if (item.image) {
+        return `<img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:0;">`;
+      }
+      return `<i class="fa-solid ${item.icon || iconForCategory(item.category)}"></i>`;
+    }
+
+    function renderWardrobeCategoryPicker() {
+      clothingCategoryPicker.innerHTML = wardrobeCategories.map((category) => `
+        <button class="category-chip ${wardrobeDraft.category === category ? 'active' : ''}" type="button" data-category="${category}">${category}</button>
+      `).join('');
+
+      clothingCategoryPicker.querySelectorAll('.category-chip').forEach((button) => {
+        button.addEventListener('click', () => {
+          wardrobeDraft.category = button.dataset.category;
+          console.log(`新增衣服分类：${wardrobeDraft.category}`);
+          renderWardrobeCategoryPicker();
+        });
+      });
+    }
+
+    function resetWardrobeDraft() {
+      wardrobeModalMode = 'create';
+      wardrobeEditTargetId = null;
+      wardrobeDraft = {
+        image: '',
+        category: '上装',
+        name: '',
+        note: ''
+      };
+      clothingImageInput.value = '';
+      clothingNameInput.value = '';
+      clothingNoteInput.value = '';
+      clothingPreviewImg.style.display = 'none';
+      clothingPreviewImg.removeAttribute('src');
+      clothingPreviewPlaceholder.style.display = 'grid';
+      clothingPreviewBox.style.background = 'linear-gradient(135deg, #f8fafc, #eef2ff)';
+      renderWardrobeCategoryPicker();
+    }
+
+    function syncWardrobeModalUI() {
+      const title = document.getElementById('wardrobeAddTitle');
+      const saveButton = document.getElementById('saveWardrobeAddBtn');
+      title.textContent = wardrobeModalMode === 'edit' ? '编辑衣服' : '添加衣服';
+      saveButton.textContent = wardrobeModalMode === 'edit' ? '保存修改' : '保存到衣橱';
+    }
+
+    function openWardrobeAddModal() {
+      resetWardrobeDraft();
+      syncWardrobeModalUI();
+      openModal(wardrobeAddMask);
+      showToast('请填写新衣服信息');
+      console.log('打开添加衣服面板');
+    }
+
+    function openWardrobeEditModal(item) {
+      wardrobeModalMode = 'edit';
+      wardrobeEditTargetId = item.id;
+      wardrobeDraft = {
+        image: item.image || '',
+        category: item.category,
+        name: item.name,
+        note: item.note || ''
+      };
+      clothingImageInput.value = '';
+      clothingNameInput.value = item.name;
+      clothingNoteInput.value = item.note || '';
+      clothingPreviewPlaceholder.style.display = item.image ? 'none' : 'grid';
+      clothingPreviewImg.style.display = item.image ? 'block' : 'none';
+      if (item.image) {
+        clothingPreviewImg.src = item.image;
+        clothingPreviewBox.style.background = '#fff';
+      } else {
+        clothingPreviewImg.removeAttribute('src');
+        clothingPreviewBox.style.background = 'linear-gradient(135deg, #f8fafc, #eef2ff)';
+      }
+      syncWardrobeModalUI();
+      renderWardrobeCategoryPicker();
+      openModal(wardrobeAddMask);
+      showToast('开始编辑衣服');
+      console.log(`打开编辑面板：${item.name}`);
+    }
+
+    function closeWardrobeAddModal() {
+      closeModal(wardrobeAddMask);
+    }
+
+    function updateWardrobePreview(imageSrc) {
+      wardrobeDraft.image = imageSrc;
+      clothingPreviewImg.src = imageSrc;
+      clothingPreviewImg.style.display = 'block';
+      clothingPreviewPlaceholder.style.display = 'none';
+      clothingPreviewBox.style.background = '#fff';
+    }
+
+    function renderFilters() {
+      filterBar.innerHTML = categories.map((category) => `
+        <button class="filter-btn ${category === currentFilter ? 'active' : ''}" data-category="${category}" type="button">${category}</button>
+      `).join('');
+
+      filterBar.querySelectorAll('.filter-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          currentFilter = button.dataset.category;
+          console.log(`筛选分类：${currentFilter}`);
+          showToast(`筛选：${currentFilter}`);
+          renderFilters();
+          renderWardrobeGrid();
+        });
+      });
+    }
+
+    function filteredWardrobeItems() {
+      return currentFilter === '全部'
+        ? wardrobeItems
+        : wardrobeItems.filter((item) => item.category === currentFilter);
+    }
+
+    function renderWardrobeGrid() {
+      const items = filteredWardrobeItems();
+      if (!items.length) {
+        wardrobeGrid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">暂无该分类单品</div>';
+        return;
+      }
+
+      wardrobeGrid.innerHTML = items.map((item) => `
+        <div class="wardrobe-item ${selectedWardrobeId === item.id ? 'selected' : ''}" data-id="${item.id}" role="button" tabindex="0">
+          <div class="item-actions">
+            <button class="action-chip zoom-item-btn" data-id="${item.id}" type="button" title="放大查看"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+            <button class="action-chip danger delete-item-btn" data-id="${item.id}" type="button" title="删除单品"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="item-thumb" style="background: ${item.image ? 'linear-gradient(160deg, #fff, #f3f4f6)' : `linear-gradient(160deg, ${item.thumb}, rgba(255,255,255,0.7))`};">
+            ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:0;">` : `<i class="fa-solid ${item.icon}"></i>`}
+          </div>
+          <div class="item-name">${item.name}</div>
+          <p class="item-meta">${item.category}${item.note ? ' · ' + item.note : ''}</p>
+        </div>
+      `).join('');
+
+      wardrobeGrid.querySelectorAll('.wardrobe-item').forEach((card) => {
+        card.addEventListener('click', () => {
+          const itemId = Number(card.dataset.id);
+          const item = wardrobeItems.find((entry) => entry.id === itemId);
+          selectedWardrobeId = itemId;
+          console.log(`选中了 ${item.name}`);
+          showToast(`选中了 ${item.name}`);
+          renderWardrobeGrid();
+        });
+
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            card.click();
+          }
+        });
+      });
+
+      wardrobeGrid.querySelectorAll('.zoom-item-btn').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const itemId = Number(button.dataset.id);
+          const item = wardrobeItems.find((entry) => entry.id === itemId);
+          openItemDetail(item);
+        });
+      });
+
+      wardrobeGrid.querySelectorAll('.delete-item-btn').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const itemId = Number(button.dataset.id);
+          const item = wardrobeItems.find((entry) => entry.id === itemId);
+          deleteWardrobeItem(item);
+        });
+      });
+    }
+
+    function openItemDetail(item) {
+      activeWardrobeItem = item;
+      detailName.textContent = item.name;
+      detailCategory.textContent = `分类：${item.category}`;
+      detailNote.textContent = item.note ? `备注：${item.note}` : '备注：暂无';
+      detailFigure.innerHTML = item.image
+        ? `<img src="${item.image}" alt="${item.name}" />`
+        : `<div class="fallback" style="background: linear-gradient(160deg, ${item.thumb}, rgba(255,255,255,0.35)); width: 100%; height: 100%; display: grid; place-items: center;"><i class="fa-solid ${item.icon}"></i></div>`;
+      openModal(itemDetailMask);
+      console.log(`放大查看 ${item.name}`);
+      showToast(`查看 ${item.name}`);
+    }
+
+    function deleteWardrobeItem(item) {
+      if (!item) return;
+      wardrobeItems = wardrobeItems.filter((entry) => entry.id !== item.id);
+      selectedItems.splice(0, selectedItems.length, ...selectedItems.filter((entry) => entry.id !== item.id));
+      if (selectedWardrobeId === item.id) selectedWardrobeId = null;
+      if (activeWardrobeItem && activeWardrobeItem.id === item.id) closeModal(itemDetailMask);
+      console.log(`删除单品 ${item.name}`);
+      showToast(`已删除 ${item.name}`);
+      renderFilters();
+      renderWardrobeGrid();
+      renderSelectedList();
+      saveAppState();
+    }
+
+    function renderSelectedList() {
+      if (!selectedItems.length) {
+        selectedList.innerHTML = '<div class="empty">当前还没有试穿单品，点击“添加单品”开始搭配。</div>';
+        return;
+      }
+
+      selectedList.innerHTML = selectedItems.map((item) => `
+        <div class="selected-item">
+          <div class="mini-thumb" style="background: linear-gradient(160deg, ${item.thumb}, rgba(255,255,255,0.3));">
+            <i class="fa-solid ${item.icon}"></i>
+          </div>
+          <div class="selected-info">
+            <p class="selected-name">${item.name}</p>
+            <p class="selected-desc">${item.category} · 已加入试穿</p>
+          </div>
+          <button class="small-btn remove-btn" data-id="${item.id}" type="button" title="移除"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `).join('');
+
+      selectedList.querySelectorAll('.remove-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = Number(button.dataset.id);
+          const index = selectedItems.findIndex((item) => item.id === id);
+          if (index >= 0) {
+            const removed = selectedItems.splice(index, 1)[0];
+            console.log(`移除了 ${removed.name}`);
+            showToast(`已移除 ${removed.name}`);
+            renderSelectedList();
+            saveAppState();
+          }
+        });
+      });
+    }
+
+    function renderModalGrid() {
+      modalGrid.innerHTML = wardrobeItems.map((item) => `
+        <button class="modal-item" data-id="${item.id}" type="button">
+          <div class="thumb-small" style="background: linear-gradient(160deg, ${item.thumb}, rgba(255,255,255,0.35));">
+            ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;">` : `<i class="fa-solid ${item.icon}"></i>`}
+          </div>
+          <h4>${item.name}</h4>
+          <p>${item.category}</p>
+        </button>
+      `).join('');
+
+      modalGrid.querySelectorAll('.modal-item').forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = Number(button.dataset.id);
+          const item = wardrobeItems.find((entry) => entry.id === id);
+          if (selectedItems.some((entry) => entry.id === id)) {
+            showToast(`${item.name} 已在试穿列表`);
+            console.log(`重复添加：${item.name}`);
+            return;
+          }
+          selectedItems.push(item);
+          console.log(`添加单品：${item.name}`);
+          showToast(`已添加 ${item.name}`);
+          renderSelectedList();
+          saveAppState();
+          closeModal(addModalMask);
+        });
+      });
+    }
+
+    function openModal(maskElement) {
+      maskElement.classList.add('show');
+      maskElement.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal(maskElement) {
+      maskElement.classList.remove('show');
+      maskElement.setAttribute('aria-hidden', 'true');
+    }
+
+    function randomGradientFromSeed(seed) {
+      const palette = [
+        ['#111827', '#3b82f6', '#a855f7'],
+        ['#ec4899', '#f97316', '#facc15'],
+        ['#14b8a6', '#06b6d4', '#60a5fa'],
+        ['#4f46e5', '#0f172a', '#22c55e'],
+        ['#fb7185', '#f59e0b', '#fef3c7']
+      ];
+      const colors = palette[seed % palette.length];
+      return `linear-gradient(155deg, ${colors[0]}, ${colors[1]} 52%, ${colors[2]})`;
+    }
+
+    function regenerateLook() {
+      generationSeed += 1;
+      const variant = suggestionVariants[generationSeed % suggestionVariants.length];
+      rightCompareCard.style.background = variant.gradient;
+      suggestionTitle.textContent = variant.title;
+      suggestionDesc.textContent = variant.desc;
+      console.log('重新生成穿搭效果');
+      showToast('已重新生成搭配建议');
+    }
+
+    function saveLook() {
+      console.log('已保存到灵感收藏');
+      alert('已保存到灵感收藏');
+    }
+
+    function createWardrobeItem() {
+      const name = clothingNameInput.value.trim();
+      const note = clothingNoteInput.value.trim();
+      if (!name) {
+        alert('请先填写衣服名称');
+        clothingNameInput.focus();
+        return;
+      }
+
+      if (wardrobeModalMode === 'edit' && wardrobeEditTargetId !== null) {
+        const target = wardrobeItems.find((entry) => entry.id === wardrobeEditTargetId);
+        if (!target) {
+          showToast('未找到要编辑的单品');
+          closeWardrobeAddModal();
+          return;
+        }
+
+        target.category = wardrobeDraft.category;
+        target.name = name;
+        target.note = note;
+        target.thumb = wardrobeDraft.image ? '#ffffff' : target.thumb;
+        target.icon = iconForCategory(wardrobeDraft.category);
+        target.image = wardrobeDraft.image || '';
+        console.log('更新衣服', target);
+        showToast(`已保存 ${name}`);
+        closeWardrobeAddModal();
+        renderFilters();
+        renderWardrobeGrid();
+        renderSelectedList();
+        saveAppState();
+        return;
+      }
+
+      const newItem = {
+        id: Date.now(),
+        category: wardrobeDraft.category,
+        name,
+        note,
+        thumb: wardrobeDraft.image ? '#ffffff' : '#d1d5db',
+        icon: iconForCategory(wardrobeDraft.category),
+        image: wardrobeDraft.image || ''
+      };
+
+      wardrobeItems.unshift(newItem);
+      console.log('新增衣服', newItem);
+      showToast(`已添加 ${name}`);
+      closeWardrobeAddModal();
+      renderFilters();
+      renderWardrobeGrid();
+      saveAppState();
+    }
+
+    function updateBodySummary() {
+      bodyInfoSummary.textContent = `${bodyInfo.height}cm · ${bodyInfo.weight}kg · ${bodyInfo.shape}`;
+    }
+
+    function syncProfileFields() {
+      nicknameInput.value = profileState.nickname;
+      bioInput.value = profileState.bio;
+      outfitNameInput.value = outfitName;
+      updateBodySummary();
+      // avatar preview (in profile edit modal)
+      try {
+        if (profileState.avatar) {
+          profileAvatarPreview.innerHTML = `<img src="${profileState.avatar}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+          profileAvatarPreview.innerHTML = '<i class="fa-solid fa-user" style="font-size:24px;color:#94a3b8"></i>';
+        }
+      } catch (e) {
+        // ignore if elements not present
+      }
+    }
+
+    function editBodyInfo() {
+      // toggle inline edit form inside modal
+      if (!bodyInfoEditForm) return;
+      const isEditing = bodyInfoEditForm.style.display === 'block';
+      if (!isEditing) {
+        bodyHeightInput.value = bodyInfo.height;
+        bodyWeightInput.value = bodyInfo.weight;
+        bodyShapeInput.value = bodyInfo.shape;
+        bodyInfoEditForm.style.display = 'block';
+        document.getElementById('editBodyInfoBtn').textContent = '保存修改';
+        return;
+      }
+
+      // save
+      const nextHeight = Number(bodyHeightInput.value);
+      const nextWeight = Number(bodyWeightInput.value);
+      const nextShape = String(bodyShapeInput.value || bodyInfo.shape).trim();
+      bodyInfo.height = Number.isFinite(nextHeight) && nextHeight > 0 ? nextHeight : bodyInfo.height;
+      bodyInfo.weight = Number.isFinite(nextWeight) && nextWeight > 0 ? nextWeight : bodyInfo.weight;
+      bodyInfo.shape = nextShape || bodyInfo.shape;
+      bodyInfoEditForm.style.display = 'none';
+      document.getElementById('editBodyInfoBtn').textContent = '编辑信息';
+      bodyHeightText.textContent = `${bodyInfo.height} cm`;
+      bodyWeightText.textContent = `${bodyInfo.weight} kg`;
+      bodyShapeText.textContent = bodyInfo.shape;
+      updateBodySummary();
+      showToast('身形信息已更新');
+      console.log('更新身形信息', bodyInfo);
+      saveAppState();
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => setTab(button.dataset.tab));
+    });
+
+    openAddClothingBtn.addEventListener('click', openWardrobeAddModal);
+
+    document.getElementById('addItemBtn').addEventListener('click', () => {
+      console.log('打开添加单品面板');
+      showToast('请选择要添加的衣橱单品');
+      renderModalGrid();
+      openModal(addModalMask);
+    });
+
+    clothingPreviewBox.addEventListener('click', () => clothingImageInput.click());
+    pickImageBtn.addEventListener('click', () => clothingImageInput.click());
+    clearImageBtn.addEventListener('click', () => {
+      wardrobeDraft.image = '';
+      clothingImageInput.value = '';
+      clothingPreviewImg.style.display = 'none';
+      clothingPreviewImg.removeAttribute('src');
+      clothingPreviewPlaceholder.style.display = 'grid';
+      clothingPreviewBox.style.background = 'linear-gradient(135deg, #f8fafc, #eef2ff)';
+      console.log('清除衣服图片');
+      showToast('已清除图片');
+    });
+
+    clothingImageInput.addEventListener('change', () => {
+      const file = clothingImageInput.files && clothingImageInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => updateWardrobePreview(String(reader.result || ''));
+      reader.readAsDataURL(file);
+      console.log(`选择衣服图片：${file.name}`);
+      showToast('图片已选择');
+    });
+
+    clothingNameInput.addEventListener('input', () => {
+      wardrobeDraft.name = clothingNameInput.value;
+    });
+
+    clothingNoteInput.addEventListener('input', () => {
+      wardrobeDraft.note = clothingNoteInput.value;
+    });
+
+    document.getElementById('saveWardrobeAddBtn').addEventListener('click', createWardrobeItem);
+    document.getElementById('cancelWardrobeAddBtn').addEventListener('click', closeWardrobeAddModal);
+    document.getElementById('closeWardrobeAddBtn').addEventListener('click', closeWardrobeAddModal);
+
+    document.getElementById('closeAddModalBtn').addEventListener('click', () => closeModal(addModalMask));
+    document.getElementById('closeBodyInfoBtn').addEventListener('click', () => closeModal(bodyInfoMask));
+    document.getElementById('closeItemDetailBtn').addEventListener('click', () => closeModal(itemDetailMask));
+    document.getElementById('bodyInfoOkBtn').addEventListener('click', () => {
+      console.log('查看身形信息');
+      showToast('身形信息仅前端展示');
+      closeModal(bodyInfoMask);
+    });
+    editFromDetailBtn.addEventListener('click', () => {
+      if (!activeWardrobeItem) return;
+      closeModal(itemDetailMask);
+      openWardrobeEditModal(activeWardrobeItem);
+    });
+    deleteFromDetailBtn.addEventListener('click', () => {
+      deleteWardrobeItem(activeWardrobeItem);
+    });
+    document.getElementById('bodyInfoBtn').addEventListener('click', () => {
+      console.log('打开身形信息');
+      showToast('已打开身形信息');
+      openModal(bodyInfoMask);
+    });
+    document.getElementById('editBodyInfoBtn').addEventListener('click', editBodyInfo);
+    document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
+      openProfileEditModal();
+    });
+
+    function openProfileEditModal() {
+      try {
+        profileNicknameInput.value = profileState.nickname || '';
+        profileBioInput.value = profileState.bio || '';
+        if (profileState.avatar) {
+          profileAvatarPreview.innerHTML = `<img src="${profileState.avatar}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+          profileAvatarPreview.innerHTML = '<i class="fa-solid fa-user" style="font-size:24px;color:#94a3b8"></i>';
+        }
+        openModal(profileEditMask);
+      } catch (e) {
+        console.warn('无法打开资料编辑弹窗', e);
+      }
+    }
+
+    function closeProfileEditModal() {
+      closeModal(profileEditMask);
+    }
+
+    profilePill && profilePill.addEventListener('click', openProfileEditModal);
+    closeProfileEditBtn && closeProfileEditBtn.addEventListener('click', closeProfileEditModal);
+    cancelProfileEditBtn && cancelProfileEditBtn.addEventListener('click', closeProfileEditModal);
+    profilePickAvatarBtn && profilePickAvatarBtn.addEventListener('click', () => profileAvatarInput.click());
+    profileClearAvatarBtn && profileClearAvatarBtn.addEventListener('click', () => {
+      profileState.avatar = '';
+      profileAvatarPreview.innerHTML = '<i class="fa-solid fa-user" style="font-size:24px;color:#94a3b8"></i>';
+    });
+
+    profileAvatarInput && profileAvatarInput.addEventListener('change', () => {
+      const file = profileAvatarInput.files && profileAvatarInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const data = String(reader.result || '');
+        profileAvatarPreview.innerHTML = `<img src="${data}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">`;
+        profileState.avatar = data;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    saveProfileBtn && saveProfileBtn.addEventListener('click', () => {
+      profileState.nickname = profileNicknameInput.value.trim() || profileState.nickname;
+      profileState.bio = profileBioInput.value.trim() || profileState.bio;
+      syncProfileFields();
+      saveAppState();
+      closeProfileEditModal();
+      showToast('资料已保存');
+    });
+    document.getElementById('regenBtn').addEventListener('click', regenerateLook);
+    document.getElementById('saveLookBtn').addEventListener('click', saveLook);
+    document.getElementById('clearSelectedBtn').addEventListener('click', () => {
+      selectedItems.splice(0, selectedItems.length);
+      console.log('清空试穿列表');
+      showToast('试穿列表已清空');
+      renderSelectedList();
+      saveAppState();
+    });
+    document.getElementById('renameLookBtn').addEventListener('click', () => {
+      outfitNameInput.focus();
+      showToast('可直接编辑穿搭名称');
+      console.log('准备编辑穿搭名称');
+    });
+
+    outfitNameInput.addEventListener('input', () => {
+      outfitName = outfitNameInput.value.trim() || '今日穿搭';
+      console.log(`穿搭名称更新为：${outfitName}`);
+      saveAppState();
+    });
+
+    nicknameInput.addEventListener('input', () => {
+      profileState.nickname = nicknameInput.value.trim() || 'Luna';
+      console.log(`昵称更新为：${profileState.nickname}`);
+      saveAppState();
+    });
+
+    bioInput.addEventListener('input', () => {
+      profileState.bio = bioInput.value.trim() || '记录每天的穿搭灵感，把衣橱变成个人风格实验室。';
+      console.log('个人简介已更新');
+      saveAppState();
+    });
+
+    [addModalMask, bodyInfoMask].forEach((mask) => {
+      mask.addEventListener('click', (event) => {
+        if (event.target === mask) closeModal(mask);
+      });
+    });
+
+    itemDetailMask.addEventListener('click', (event) => {
+      if (event.target === itemDetailMask) closeModal(itemDetailMask);
+    });
+
+    wardrobeAddMask.addEventListener('click', (event) => {
+      if (event.target === wardrobeAddMask) closeWardrobeAddModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeModal(addModalMask);
+        closeModal(bodyInfoMask);
+        closeModal(itemDetailMask);
+        closeWardrobeAddModal();
+      }
+    });
+
+    function initCompareCards() {
+      leftCompareCard.style.background = 'linear-gradient(160deg, #1f2937, #64748b 55%, #cbd5e1)';
+      rightCompareCard.style.background = randomGradientFromSeed(generationSeed);
+    }
+
+    initCompareCards();
+    loadAppState();
+    renderFilters();
+    renderWardrobeGrid();
+    renderSelectedList();
+    renderWardrobeCategoryPicker();
+    syncProfileFields();
+    setTab('wardrobe');
+    showToast('页面已加载完成');
+  </script>
+</body>
+</html>
