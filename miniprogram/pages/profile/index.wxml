@@ -1,0 +1,40 @@
+﻿<view class="container">
+  <view class="card">
+    <view class="avatar-wrap" bindtap="onPickAvatar">
+      <image wx:if="{{profile.avatar_url}}" class="avatar" mode="aspectFill" src="{{profile.avatar_url}}" />
+      <view wx:else class="avatar placeholder">上传头像</view>
+      <text class="muted avatar-tip">点击更换头像</text>
+    </view>
+
+    <view class="field">
+      <text class="label">昵称</text>
+      <input class="input" maxlength="30" value="{{profile.nickname}}" bindinput="onNicknameInput" />
+    </view>
+
+    <view class="field">
+      <text class="label">简介</text>
+      <textarea style="height: 100rpx; display: block; box-sizing: border-box; left: 0rpx; top: 0rpx" class="textarea" maxlength="160" value="{{profile.bio}}" bindinput="onBioInput" />
+    </view>
+  </view>
+
+  <view class="card body-card">
+    <text class="section-title">身材信息</text>
+    <view class="row2">
+      <view class="field half">
+        <text class="label">身高(cm)</text>
+        <input class="input" type="number" value="{{body.height}}" bindinput="onHeightInput" />
+      </view>
+      <view class="field half">
+        <text class="label">体重(kg)</text>
+        <input class="input" type="number" value="{{body.weight}}" bindinput="onWeightInput" />
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="label">体型描述</text>
+      <input class="input" placeholder="例如：H 型、梨形..." value="{{body.shape}}" bindinput="onShapeInput" />
+    </view>
+  </view>
+
+  <button class="primary-btn save-btn" loading="{{saving}}" bindtap="onSave">保存资料</button>
+</view>

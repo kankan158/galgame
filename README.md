@@ -1,36 +1,65 @@
-# AI Tryon — 后端 (Express + SQLite)
+﻿# AI Tryon（后端 + 微信小程序）
 
-快速说明：本项目提供最小可运行的本地后端，用于 `ai-tryon` 前端 demo。支持衣橱 CRUD、profile 与身形信息，并通过 `multipart/form-data` 上传图片，保存到 `uploads/` 并在 DB 中保存路径。
+这个仓库现在包含两部分：
 
-安装与启动
+- `server.js`：Express + SQLite 后端
+- `miniprogram/`：微信小程序前端（可直接导入微信开发者工具）
+
+## 1. 启动后端
 
 ```bash
 npm install
 npm start
 ```
 
-默认服务地址：`http://localhost:3000`
+默认地址：`http://127.0.0.1:3000`
 
-重要目录
+## 2. 在微信开发者工具导入项目
 
-- `uploads/`：上传的图片文件（可通过 `/uploads/<filename>` 访问）
-- `data/ai-tryon.db`：SQLite 数据库文件
+1. 打开微信开发者工具，进入“小程序”页。
+2. 点“导入”。
+3. 项目目录选择仓库根目录：`D:\1postgraduate stage\git`
+4. AppID 可先用“测试号 / touristappid”（本项目 `project.config.json` 已配置）。
+5. 点击“导入项目”。
 
-常用 API 示例
+导入后，开发者工具会识别：
 
-- 获取衣橱列表：GET `/api/wardrobe`
-- 新增衣物（文件字段名 `image`）：
+- `project.config.json`
+- `miniprogramRoot = miniprogram/`
 
+无需再手工改目录。
+
+## 3. 开发者工具本地调试设置
+
+为了让小程序访问本地后端，请在开发者工具中：
+
+1. 打开“详情”面板。
+2. 勾选“不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书”。
+
+## 4. 真实手机调试时要改的地址
+
+`miniprogram/app.js` 里默认是：
+
+```js
+baseUrl: "http://127.0.0.1:3000"
 ```
-curl -X POST -F "name=My Shirt" -F "category=top" -F "note=Nice" -F "image=@/path/to/file.jpg" http://localhost:3000/api/wardrobe
-```
 
-- 编辑衣物（可替换图片）：PUT `/api/wardrobe/:id`，表单字段同上。
-- 删除衣物：DELETE `/api/wardrobe/:id`
+- 这只适用于开发者工具模拟器。
+- 真机调试时改成你电脑局域网 IP，例如：`http://192.168.1.10:3000`。
+- 同时保证手机和电脑在同一网络，且防火墙放行 3000 端口。
 
-- 获取/更新 profile：GET `/api/profile` / PUT `/api/profile`（可上传 avatar, 字段名 `avatar`）
-- 获取/更新 身形：GET `/api/bodyinfo` / PUT `/api/bodyinfo`（JSON body: `height`, `weight`, `shape`）
+## 5. 小程序页面说明
 
-下一步建议
+- `pages/wardrobe/index`：衣橱列表、筛选、选中试穿、删除
+- `pages/wardrobe/edit`：新增/编辑衣物（支持上传图片）
+- `pages/tryon/index`：试穿清单、模特切换、穿搭建议
+- `pages/profile/index`：资料与身材信息维护
 
-- 在前端 `ai-tryon.html` 中实现对这些接口的调用，并在网络不可用时回退到 `localStorage`。
+## 6. 后端新增兼容接口
+
+为了适配小程序上传行为，后端额外支持：
+
+- `POST /api/wardrobe/:id`（更新衣物，等价于 `PUT /api/wardrobe/:id`）
+- `POST /api/profile`（更新资料，等价于 `PUT /api/profile`）
+
+这样 `wx.uploadFile` 上传时可以直接工作。

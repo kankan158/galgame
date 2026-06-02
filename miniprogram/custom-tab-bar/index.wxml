@@ -1,0 +1,16 @@
+<view class="tabbar-wrap">
+  <view class="tabbar-safe-area">
+    <view class="tabbar">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="pagePath"
+        class="tab-item {{selected === index ? 'active' : ''}}"
+        data-index="{{index}}"
+        bindtap="onSwitchTab"
+      >
+        <text class="tab-icon">{{item.icon}}</text>
+        <text class="tab-text">{{item.text}}</text>
+      </view>
+    </view>
+  </view>
+</view>

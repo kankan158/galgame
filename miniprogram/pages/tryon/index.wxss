@@ -1,0 +1,276 @@
+.model-card {
+  margin-bottom: 12rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.model-stage {
+  width: 100%;
+  height: 540rpx;
+  border-radius: 16rpx;
+  background: #e7ecf5;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.model-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.stage-status {
+  position: absolute;
+  left: 50%;
+  bottom: 18rpx;
+  transform: translateX(-50%);
+  max-width: 86%;
+  background: rgba(15, 23, 42, 0.7);
+  color: #ffffff;
+  border-radius: 12rpx;
+  padding: 8rpx 14rpx;
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.stage-status.running {
+  background: rgba(14, 116, 144, 0.76);
+}
+
+.action-row {
+  margin-top: 10rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.action-row.secondary {
+  margin-top: 8rpx;
+}
+
+.action-btn {
+  flex: 1;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #d0d5dd;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.action-btn.primary {
+  background: #dce4f5;
+  border-color: #dce4f5;
+  color: #1d4ed8;
+}
+
+.action-btn.save {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.mini-btn {
+  border-radius: 12rpx;
+}
+
+.mini-btn.danger {
+  color: #b42318;
+  border: 1px solid #fecdca;
+  background: #fef3f2;
+}
+
+.selected-item {
+  display: flex;
+  gap: 14rpx;
+  margin-top: 12rpx;
+  align-items: center;
+}
+
+.item-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 14rpx;
+  background: #f2f4f7;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #98a2b3;
+  font-size: 24rpx;
+}
+
+.item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.item-name {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.picker-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.36);
+  display: flex;
+  align-items: flex-end;
+}
+
+.picker-panel {
+  width: 100%;
+  max-height: 78vh;
+  background: #ffffff;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 26rpx;
+  box-sizing: border-box;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.picker-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.picker-close {
+  width: 64rpx;
+  height: 64rpx;
+  padding: 0;
+  border-radius: 16rpx;
+  background: #f2f4f7;
+  color: #0f172a;
+  font-size: 42rpx;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.picker-desc {
+  margin-top: 12rpx;
+  display: block;
+  color: #667085;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+.picker-category-scroll {
+  margin-top: 16rpx;
+  white-space: nowrap;
+}
+
+.picker-category-row {
+  display: inline-flex;
+  gap: 12rpx;
+  padding-right: 8rpx;
+}
+
+.picker-category-pill {
+  width: 106rpx;
+  height: 126rpx;
+  border-radius: 999rpx;
+  background: #f2f4f8;
+  color: #667085;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+}
+
+.picker-category-pill.active {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.picker-pill-icon {
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.picker-pill-count {
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.picker-pill-label {
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.picker-list {
+  margin-top: 16rpx;
+  height: 62vh;
+}
+
+.picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding-bottom: 30rpx;
+}
+
+.picker-item {
+  position: relative;
+  width: calc((100% - 16rpx) / 2);
+  background: #ffffff;
+  border: 2rpx solid #e4e7ec;
+  border-radius: 24rpx;
+  padding: 14rpx;
+  box-sizing: border-box;
+}
+
+.picker-item.added {
+  border-color: #1d4ed8;
+  box-shadow: 0 8rpx 20rpx rgba(29, 78, 216, 0.12);
+}
+
+.picker-thumb {
+  width: 100%;
+  height: 220rpx;
+  border-radius: 18rpx;
+  background: #eef2f7;
+}
+
+.picker-item-name {
+  margin-top: 12rpx;
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.picker-item-meta {
+  margin-top: 4rpx;
+  display: block;
+  font-size: 26rpx;
+  color: #667085;
+}
+
+.picker-added-tag {
+  position: absolute;
+  top: 22rpx;
+  right: 22rpx;
+  background: rgba(15, 23, 42, 0.75);
+  color: #ffffff;
+  font-size: 22rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 999rpx;
+}

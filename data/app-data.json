@@ -1,0 +1,59 @@
+{
+  "nextIds": {
+    "wardrobe": 6
+  },
+  "wardrobe_items": [
+    {
+      "id": 5,
+      "category": "top",
+      "name": "baise",
+      "note": "BAI",
+      "image_url": "/uploads/1780057158639-4O0stQtrqeumd58fda9b1274df814ef68ec6d2762db6.jpg",
+      "created_at": 1780057158641
+    },
+    {
+      "id": 4,
+      "category": "bottom",
+      "name": "白白",
+      "note": "白",
+      "image_url": "/uploads/1780052677660-niPVoXJDOS6x46ed71485bfb1bb3910082eb38fb20c4.jpg",
+      "created_at": 1780052677662
+    },
+    {
+      "id": 3,
+      "category": "top",
+      "name": "bai",
+      "note": "白",
+      "image_url": "/uploads/1780052613053-M5xxBeqmU3ok46ed71485bfb1bb3910082eb38fb20c4.jpg",
+      "created_at": 1780052613065
+    },
+    {
+      "id": 2,
+      "category": "top",
+      "name": "黑",
+      "note": "黑",
+      "image_url": "/uploads/1780051129382-fMXuQypIIpCu0cda04fa90010210c1c2cd3c124486bc.png",
+      "created_at": 1780051129385
+    },
+    {
+      "id": 1,
+      "category": "top",
+      "name": "黑",
+      "note": "黑",
+      "image_url": "/uploads/1779963327945-obmwP9fIdYXt0cda04fa90010210c1c2cd3c124486bc.png",
+      "created_at": 1779963327948
+    }
+  ],
+  "profile": {
+    "id": 1,
+    "nickname": "阚阚",
+    "bio": "你好",
+    "avatar_url": "/uploads/1780052626489-d7QeVU6oSM6N66c9cbea1c015d9e97009e9399ba5b04.jpg"
+  },
+  "body_info": {
+    "id": 1,
+    "height": 158,
+    "weight": null,
+    "shape": ""
+  }
+}

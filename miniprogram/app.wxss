@@ -1,0 +1,34 @@
+page {
+  background: #f5f7fb;
+  color: #0f172a;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.container {
+  padding: 24rpx;
+  padding-bottom: 170rpx;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.06);
+}
+
+.section-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-bottom: 16rpx;
+}
+
+.primary-btn {
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+}
+
+.muted {
+  color: #667085;
+}

@@ -1,0 +1,68 @@
+.avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 22rpx;
+}
+
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 999rpx;
+  background: #f2f4f7;
+}
+
+.placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #98a2b3;
+  font-size: 26rpx;
+}
+
+.avatar-tip {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  margin-top: 14rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.input,
+.textarea {
+  background: #f2f4f7;
+  border-radius: 16rpx;
+  padding: 18rpx;
+  font-size: 28rpx;
+}
+
+.textarea {
+  min-height: 140rpx;
+  line-height: 1.5;
+}
+
+.body-card {
+  margin-top: 18rpx;
+}
+
+.row2 {
+  display: flex;
+  gap: 14rpx;
+}
+
+.half {
+  flex: 1;
+}
+
+.save-btn {
+  margin-top: 18rpx;
+}

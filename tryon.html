@@ -40,6 +40,15 @@
         linear-gradient(180deg, #f8f9fb 0%, #eef1f5 100%);
       color: var(--text);
       font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      width: 0;
+      height: 0;
     }
 
     body {
@@ -328,10 +337,6 @@
       margin-top: 14px;
     }
 
-    .compare-grid.has-saved {
-      grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
-    }
-
     .compare-card {
       border-radius: 24px;
       min-height: 192px;
@@ -343,17 +348,6 @@
       justify-content: space-between;
       color: #fff;
       box-shadow: 0 16px 32px rgba(15, 23, 42, 0.16);
-    }
-
-    #rightCompareCard {
-      background: rgba(255, 255, 255, 0.95);
-      color: #111827;
-      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.10);
-    }
-
-    #rightCompareCard .badge {
-      background: rgba(17, 24, 39, 0.06);
-      color: #111827;
     }
 
     .compare-card .badge {
@@ -413,96 +407,6 @@
       font-size: 12px;
       opacity: 0.88;
       line-height: 1.5;
-    }
-
-    .saved-looks-list {
-      display: grid;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .saved-look-card {
-      display: grid;
-      grid-template-columns: 84px minmax(0, 1fr);
-      gap: 10px;
-      align-items: stretch;
-      border-radius: 18px;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.92);
-      color: #111827;
-      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
-      border: 1px solid rgba(17, 24, 39, 0.06);
-    }
-
-    .saved-look-thumb {
-      width: 84px;
-      height: 116px;
-      border-radius: 14px;
-      object-fit: cover;
-      background: #f3f4f6;
-      display: block;
-    }
-
-    .saved-look-fallback {
-      width: 84px;
-      height: 116px;
-      border-radius: 14px;
-      background: #e5e7eb;
-      color: #6b7280;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 8px;
-    }
-
-    .saved-look-body {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      justify-content: center;
-    }
-
-    .saved-look-title {
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.4;
-      color: #111827;
-      word-break: break-word;
-    }
-
-    .saved-look-meta {
-      font-size: 12px;
-      color: #6b7280;
-      line-height: 1.45;
-    }
-
-    .saved-look-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .saved-look-tag {
-      border-radius: 999px;
-      padding: 4px 8px;
-      background: #f3f4f6;
-      color: #374151;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .saved-looks-empty {
-      border-radius: 18px;
-      padding: 20px 16px;
-      background: rgba(255, 255, 255, 0.72);
-      color: #6b7280;
-      font-size: 13px;
-      text-align: center;
-      border: 1px dashed rgba(17, 24, 39, 0.12);
     }
 
     .compare-card::before {
@@ -1135,7 +1039,7 @@
         <div class="title-row" style="align-items: flex-start;">
           <div>
             <h1 class="page-title">试衣间</h1>
-            <div class="subtle">组合对比 · 单品列表 · 一键生成</div>
+            <div class="subtle">单品列表 · 一键生成</div>
           </div>
           <span class="hero-chip"><i class="fa-solid fa-clapperboard"></i> AI Try-On</span>
         </div>
@@ -1163,13 +1067,6 @@
                     <button class="small-btn" id="switchMaleBtn" type="button">切换男生</button>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="compare-card" id="rightCompareCard">
-              <div class="compare-inner">
-                <div class="badge"><i class="fa-solid fa-layer-group"></i> 穿搭对比</div>
-                <div class="saved-looks-list" id="savedLooksList"></div>
-                <div class="saved-looks-empty" id="savedLooksEmpty">保存后会显示在这里</div>
               </div>
             </div>
           </div>
@@ -1425,7 +1322,6 @@
     let generationSeed = 0;
     let outfitName = '今日穿搭';
     let fittingModel = 'female';
-    let savedLooks = [];
     let profileState = {
       nickname: 'Luna',
       bio: '记录每天的穿搭灵感，把衣橱变成个人风格实验室。',
@@ -1466,16 +1362,12 @@
     const modalFilterBar = document.getElementById('modalFilterBar');
     const toast = document.getElementById('toast');
     const profileGenderIcon = document.getElementById('profileGenderIcon');
-    const compareGrid = document.querySelector('.compare-grid');
     const addModalMask = document.getElementById('addModalMask');
     const wardrobeAddMask = document.getElementById('wardrobeAddMask');
     const bodyInfoMask = document.getElementById('bodyInfoMask');
     const itemDetailMask = document.getElementById('itemDetailMask');
     const outfitNameInput = document.getElementById('outfitNameInput');
     const leftCompareCard = document.getElementById('leftCompareCard');
-    const rightCompareCard = document.getElementById('rightCompareCard');
-    const savedLooksList = document.getElementById('savedLooksList');
-    const savedLooksEmpty = document.getElementById('savedLooksEmpty');
     const nicknameInput = document.getElementById('nicknameInput');
     const bioInput = document.getElementById('bioInput');
     const bodyInfoSummary = document.getElementById('bodyInfoSummary');
@@ -1526,24 +1418,6 @@
       return Array.isArray(items) ? items.map((item) => cloneItem(item)) : [];
     }
 
-    function cloneSavedLooks(items) {
-      return Array.isArray(items)
-        ? items.map((item) => ({
-            ...item,
-            items: Array.isArray(item.items) ? item.items.map((subItem) => ({ ...subItem })) : []
-          }))
-        : [];
-    }
-
-    function escapeHtml(text) {
-      return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
     function getDefaultSelectedIds(items) {
       return items.slice(0, 3).map((item) => item.id);
     }
@@ -1558,7 +1432,6 @@
           selectedItemIds: selectedItems.map((item) => item.id),
           outfitName,
           fittingModel,
-          savedLooks: cloneSavedLooks(savedLooks),
           profileState: { ...profileState },
           bodyInfo: { ...bodyInfo }
         };
@@ -1598,7 +1471,6 @@
             const parsed = JSON.parse(raw);
             outfitName = typeof parsed.outfitName === 'string' && parsed.outfitName.trim() ? parsed.outfitName.trim() : outfitName;
             fittingModel = parsed.fittingModel === 'male' ? 'male' : 'female';
-            savedLooks = cloneSavedLooks(parsed.savedLooks || savedLooks);
             if (Array.isArray(parsed.selectedItemIds) && parsed.selectedItemIds.length) {
               const selectedIds = parsed.selectedItemIds;
               selectedItems.splice(
@@ -1670,7 +1542,6 @@
           ? parsed.outfitName.trim()
           : outfitName;
         fittingModel = parsed.fittingModel === 'male' ? 'male' : 'female';
-        savedLooks = cloneSavedLooks(parsed.savedLooks || []);
         profileState = {
           nickname: parsed.profileState?.nickname?.trim() || profileState.nickname,
           bio: parsed.profileState?.bio?.trim() || profileState.bio,
@@ -1694,36 +1565,6 @@
       modelImage.style.display = '';
       modelFallback.style.display = 'none';
       modelImage.src = src;
-    }
-
-    function renderSavedLooks() {
-      if (!savedLooksList || !savedLooksEmpty || !rightCompareCard || !compareGrid) return;
-
-      const hasSavedLooks = Array.isArray(savedLooks) && savedLooks.length > 0;
-      compareGrid.classList.toggle('has-saved', hasSavedLooks);
-      rightCompareCard.style.display = hasSavedLooks ? '' : 'none';
-      savedLooksEmpty.style.display = hasSavedLooks ? 'none' : 'block';
-
-      if (!hasSavedLooks) {
-        savedLooksList.innerHTML = '';
-        return;
-      }
-
-      savedLooksList.innerHTML = savedLooks.map((look) => {
-        const tags = (look.items || []).slice(0, 3).map((item) => `<span class="saved-look-tag">${escapeHtml(item.category || item.name || '单品')}</span>`).join('');
-        const modelLabel = look.model === 'male' ? '男生模特' : '女生模特';
-        return `
-          <div class="saved-look-card">
-            <img class="saved-look-thumb" src="${escapeHtml(look.cover || 'female.png')}" alt="${escapeHtml(look.outfitName || '已保存穿搭')}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="saved-look-fallback">模特图加载失败</div>
-            <div class="saved-look-body">
-              <div class="saved-look-title">${escapeHtml(look.outfitName || '已保存穿搭')}</div>
-              <div class="saved-look-meta">${look.itemCount || 0} 件单品 · ${modelLabel}</div>
-              <div class="saved-look-tags">${tags}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     function dataURLToFile(dataurl, filename = 'upload.png') {
@@ -2202,34 +2043,14 @@
       showToast('已重新生成搭配建议');
     }
 
-    function collectSavedLookSnapshot() {
-      return {
-        id: `look-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        outfitName: outfitName || '今日穿搭',
-        cover: fittingModel === 'male' ? 'male.png' : 'female.png',
-        model: fittingModel,
-        createdAt: Date.now(),
-        itemCount: selectedItems.length,
-        items: selectedItems.map((item) => ({
-          name: item.name,
-          category: item.category,
-          icon: item.icon
-        }))
-      };
-    }
-
     function saveLook() {
       if (!selectedItems.length) {
         showToast('请先添加一些单品再保存');
         return;
       }
 
-      const snapshot = collectSavedLookSnapshot();
-      savedLooks.unshift(snapshot);
-      savedLooks = savedLooks.slice(0, 10);
-      renderSavedLooks();
       saveAppState();
-      console.log('已保存到穿搭对比');
+      console.log('已保存穿搭');
       showToast('穿搭已保存');
     }
 
@@ -2564,16 +2385,14 @@
       }
     });
 
-    function initCompareCards() {
+    function initCompareCard() {
       leftCompareCard.style.background = 'linear-gradient(160deg, #1f2937, #64748b 55%, #cbd5e1)';
-      rightCompareCard.style.background = 'rgba(255, 255, 255, 0.95)';
     }
 
-    initCompareCards();
+    initCompareCard();
     (async () => {
       await loadAppState();
       updateModelImage();
-      renderSavedLooks();
       renderFilters();
       renderWardrobeGrid();
       renderSelectedList();

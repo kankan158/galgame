@@ -1,0 +1,58 @@
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.picker,
+.input,
+.textarea {
+  background: #f2f4f7;
+  border-radius: 16rpx;
+  padding: 18rpx;
+  font-size: 28rpx;
+}
+
+.textarea {
+  min-height: 150rpx;
+  line-height: 1.5;
+}
+
+.preview-wrap {
+  width: 100%;
+  height: 320rpx;
+}
+
+.preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 16rpx;
+  background: #f2f4f7;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #98a2b3;
+  font-size: 28rpx;
+}
+
+.hint {
+  font-size: 24rpx;
+}
+
+.save-btn {
+  margin-top: 12rpx;
+}

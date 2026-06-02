@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="card form-card">
+    <view class="field">
+      <text class="label">分类</text>
+      <picker mode="selector" range="{{categories}}" range-key="label" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <view class="picker">{{categories[categoryIndex].label}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">名称</text>
+      <input
+        class="input"
+        placeholder="例如：白色衬衫"
+        maxlength="40"
+        value="{{name}}"
+        bindinput="onNameInput"
+      />
+    </view>
+
+    <view class="field">
+      <text class="label">备注</text>
+      <textarea style="height: 120rpx; display: block; box-sizing: border-box; left: 0rpx; top: 0rpx"
+        class="textarea"
+        placeholder="可选：材质、场景、搭配想法"
+        maxlength="200"
+        value="{{note}}"
+        bindinput="onNoteInput"
+      />
+    </view>
+
+    <view class="field">
+      <text class="label">图片</text>
+      <view class="preview-wrap" bindtap="onPickImage">
+        <image wx:if="{{previewUrl}}" class="preview" mode="aspectFill" src="{{previewUrl}}" />
+        <view wx:else class="preview placeholder">点击选择图片</view>
+      </view>
+      <text class="muted hint">新增衣物时必须上传图片</text>
+    </view>
+
+    <button class="primary-btn save-btn" loading="{{submitting}}" bindtap="onSubmit">
+      {{isEdit ? "保存修改" : "新增衣物"}}
+    </button>
+  </view>
+</view>

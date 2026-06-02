@@ -1,0 +1,70 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-left">
+      <text class="hero-title" style="position: relative; left: 0rpx; top: 66rpx">我的衣橱</text>
+      <text class="hero-subtitle" style="position: relative; left: 0rpx; top: 77rpx">简洁现代的 AI 试衣 OOTD</text>
+    </view>
+    <view class="hero-actions">
+      <button class="ghost-btn" size="mini" style="position: relative; left: 0rpx; top: 122rpx">HeyOOTD </button>
+    </view>
+  </view>
+
+  <view class="block" style="position: relative; left: 0rpx; top: 68rpx">
+    <text class="block-title">分类筛选</text>
+    <view class="category-row">
+      <view
+        wx:for="{{categories}}"
+        wx:key="value"
+        class="category-pill {{activeCategory === item.value ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onSwitchCategory"
+      >
+        <view class="pill-top">
+          <text class="pill-icon">{{item.icon}}</text>
+          <text wx:if="{{item.showCount}}" class="pill-count">{{item.count}}</text>
+        </view>
+        <text class="pill-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="block" style="position: relative; left: 0rpx; top: 58rpx">
+    <view class="item-header">
+      <text class="block-title">衣橱单品</text>
+      <button class="add-item-btn" bindtap="onAdd">+</button>
+    </view>
+    <text class="block-note">点击单品进行选中，高亮后可加入试衣间</text>
+
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+
+    <view wx:if="{{!loading && filteredItems.length === 0}}" class="empty-card">
+      <text class="empty-title">还没有衣物</text>
+      <text class="empty-note">点击“衣橱单品”后的 + 先添加几件吧</text>
+    </view>
+
+    <view wx:if="{{!loading && filteredItems.length > 0}}" class="grid">
+      <view
+        wx:for="{{filteredItems}}"
+        wx:key="id"
+        class="{{item.cardClass}}"
+        data-id="{{item.id}}"
+        bindtap="onToggleSelect"
+        bindlongpress="onEdit"
+      >
+        <view class="thumb-wrap">
+          <image
+            wx:if="{{item.fullImageUrl}}"
+            class="thumb"
+            mode="aspectFill"
+            src="{{item.fullImageUrl}}"
+            data-url="{{item.fullImageUrl}}"
+            catchtap="onPreviewImage"
+          />
+          <view wx:else class="thumb placeholder">无图</view>
+        </view>
+        <text class="item-name">{{item.displayName}}</text>
+        <text class="item-meta">{{item.displayMeta}}</text>
+      </view>
+    </view>
+  </view>
+</view>

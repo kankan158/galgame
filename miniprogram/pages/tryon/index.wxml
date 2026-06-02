@@ -1,0 +1,92 @@
+﻿<view class="container">
+  <view class="card model-card">
+    <view class="row">
+      <text class="section-title">{{outfitName}}</text>
+      <button size="mini" class="mini-btn" bindtap="onRename">重命名</button>
+    </view>
+
+    <view class="model-stage" bindtap="onPreviewStage">
+      <image class="model-image" mode="aspectFit" src="{{tryonResultUrl || modelImage}}" />
+      <view wx:if="{{tryonRunning || tryonStatusText}}" class="stage-status {{tryonRunning ? 'running' : ''}}">
+        {{tryonStatusText || '已生成'}}
+      </view>
+    </view>
+
+    <view class="action-row">
+      <button class="action-btn" bindtap="onOpenPicker">+ 添加单品</button>
+      <button class="action-btn primary" loading="{{tryonRunning}}" bindtap="onRegenerate">重新生成</button>
+    </view>
+    <view class="action-row secondary">
+      <button class="action-btn save" bindtap="onSaveResultImage">⬇ 保存图片</button>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="row">
+      <text class="section-title">试衣列表（{{selectedItems.length}}）</text>
+      <button size="mini" class="mini-btn danger" bindtap="onClearSelected">清空</button>
+    </view>
+
+    <view wx:if="{{selectedItems.length === 0}}" class="muted">还没有选择衣物，点击“添加单品”加入试衣列表。</view>
+
+    <view wx:for="{{selectedItems}}" wx:key="id" class="selected-item">
+      <image
+        wx:if="{{item.fullImageUrl}}"
+        class="item-thumb"
+        mode="aspectFill"
+        src="{{item.fullImageUrl}}"
+        data-url="{{item.fullImageUrl}}"
+        bindtap="onPreviewImage"
+      />
+      <view wx:else class="item-thumb placeholder">无图</view>
+      <view class="item-meta">
+        <text class="item-name">{{item.name || '未命名单品'}}</text>
+        <text class="muted">{{item.category || '未分类'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{pickerVisible}}" class="picker-mask" catchtouchmove="noop" bindtap="onClosePicker">
+    <view class="picker-panel" catchtap="noop">
+      <view class="picker-header">
+        <text class="picker-title">选择要添加的单品</text>
+        <button class="picker-close" bindtap="onClosePicker">×</button>
+      </view>
+      <text class="picker-desc">点击任意衣橱单品，将它加入试衣列表。重复添加会自动忽略。</text>
+
+      <scroll-view class="picker-category-scroll" scroll-x="true" show-scrollbar="false">
+        <view class="picker-category-row">
+          <view
+            wx:for="{{pickerCategories}}"
+            wx:key="value"
+            class="picker-category-pill {{pickerActiveCategory === item.value ? 'active' : ''}}"
+            data-value="{{item.value}}"
+            bindtap="onPickerSwitchCategory"
+          >
+            <text class="picker-pill-icon">{{item.icon}}</text>
+            <text wx:if="{{item.value !== 'all'}}" class="picker-pill-count">{{item.count}}</text>
+            <text class="picker-pill-label">{{item.label}}</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <scroll-view class="picker-list" scroll-y="true">
+        <view class="picker-grid">
+          <view
+            wx:for="{{pickerItems}}"
+            wx:key="id"
+            class="{{item.cardClass}}"
+            data-id="{{item.id}}"
+            bindtap="onPickerAddItem"
+          >
+            <image wx:if="{{item.fullImageUrl}}" class="picker-thumb" mode="aspectFill" src="{{item.fullImageUrl}}" />
+            <view wx:else class="picker-thumb placeholder">无图</view>
+            <text class="picker-item-name">{{item.showName}}</text>
+            <text class="picker-item-meta">{{item.showMeta}}</text>
+            <text wx:if="{{item.added}}" class="picker-added-tag">已添加</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>
